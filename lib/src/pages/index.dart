@@ -145,10 +145,8 @@ class IndexState extends State<IndexPage> {
   }
 
   Future<void> _handleCameraAndMic() async {
-    await PermissionHandler().requestPermissions([
-      PermissionGroup.camera,
-      PermissionGroup.microphone,
-      PermissionGroup.storage
-    ]);
+    await Permission.camera.request();
+    await Permission.microphone.request();
+    await Permission.storage.request();
   }
 }
