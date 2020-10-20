@@ -1,6 +1,8 @@
-import 'package:agora_flutter_quickstart/src/helpers/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../helpers/db_helper.dart';
 
 class Excel extends StatefulWidget {
   @override
@@ -10,15 +12,30 @@ class Excel extends StatefulWidget {
 class _ExcelState extends State<Excel> {
   var _isLoading = true;
   var _isinit = true;
+  final storage = FlutterSecureStorage();
+  final _urlController = TextEditingController();
+  var url;
+
   List<Map<String, dynamic>> notes;
   void launchlink() async {
-    const url =
-        'https://docs.google.com/spreadsheets/d/1mgwLnPcnSaMYI8T7f-Bgsd8K6zaxVncrB-Q2ItgsMQk/edit?usp=sharing';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      print('Couldn\'t launch');
-      throw 'Could not launch $url';
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('URL is empty or Invalid'),
+          content: Text(
+              'The provided URL is empty or invalid. Please change Excel Sheet URL'),
+          actions: [
+            FlatButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: Text('Okay'))
+          ],
+        ),
+      );
     }
   }
 
@@ -32,13 +49,92 @@ class _ExcelState extends State<Excel> {
   }
 
   @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  void changeUrl() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: Text('Enter the Excel Sheet URL'),
+              content: TextField(
+                keyboardType: TextInputType.url,
+                controller: _urlController,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.only(left: 20, right: 10, top: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  labelText: 'Enter Excel Sheet URL',
+                ),
+              ),
+              actions: [
+                FlatButton(
+                    onPressed: () {
+                      if (_urlController.text == "" ||
+                          _urlController.text.isEmpty ||
+                          _urlController.text == null) {
+                        showDialog(
+                            context: ctx,
+                            builder: (ctx1) => AlertDialog(
+                                  title: Text('URL is empty or Invalid'),
+                                  content: Text(
+                                      'The provided URL is empty or invalid.'),
+                                  actions: [
+                                    FlatButton(
+                                        onPressed: () {
+                                          Navigator.of(ctx1).pop();
+                                        },
+                                        child: Text('Okay'))
+                                  ],
+                                ));
+                      } else {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        url = _urlController.text;
+                        storage
+                            .write(key: 'excel', value: _urlController.text)
+                            .then((value) {});
+                        setState(() {
+                          _isLoading = false;
+                          Navigator.of(ctx).pop();
+                        });
+                      }
+                    },
+                    child: Text('Change')),
+                FlatButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text('Cancel'))
+              ],
+            ));
+  }
+
+  Future<void> getExcelUrl() async {
+    String value = await storage.read(key: 'excel');
+    if (value != null || value != "") {
+      url = value;
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     if (_isinit) {
-      _isinit = false;
-      DBHelper.getData('notes').then((value) {
-        notes = value;
-        setState(() {
-          _isLoading = false;
+      setState(() {
+        _isLoading = true;
+        _isinit = false;
+      });
+      getExcelUrl().then((value) {
+        DBHelper.getData('notes').then((value) {
+          notes = value;
+          setState(() {
+            _isLoading = false;
+          });
         });
       });
     }
@@ -104,19 +200,39 @@ class _ExcelState extends State<Excel> {
                             ),
                     ),
                   ),
-                  Container(
-                      margin: EdgeInsets.all(20),
-                      width: 150,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Container(
-                        child: RaisedButton(
-                          onPressed: launchlink,
-                          child: Text('Open excel'),
-                          textColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.all(20),
+                        width: 120,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Container(
+                          child: RaisedButton(
+                            onPressed: url == null ? null : launchlink,
+                            child: Text('Open Excel'),
+                            textColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ),
                         ),
-                      )),
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(20),
+                        width: 150,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Container(
+                          child: RaisedButton(
+                            onPressed: changeUrl,
+                            child: Text('Change Excel Url'),
+                            textColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

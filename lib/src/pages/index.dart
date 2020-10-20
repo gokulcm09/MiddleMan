@@ -57,34 +57,6 @@ class IndexState extends State<IndexPage> {
                     ))
                   ],
                 ),
-                Column(
-                  children: [
-                    ListTile(
-                      title: Text('Broadcaster'),
-                      leading: Radio(
-                        value: ClientRole.Broadcaster,
-                        groupValue: _role,
-                        onChanged: (ClientRole value) {
-                          setState(() {
-                            _role = value;
-                          });
-                        },
-                      ),
-                    ),
-                    ListTile(
-                      title: Text('Auidence'),
-                      leading: Radio(
-                        value: ClientRole.Audience,
-                        groupValue: _role,
-                        onChanged: (ClientRole value) {
-                          setState(() {
-                            _role = value;
-                          });
-                        },
-                      ),
-                    )
-                  ],
-                ),
                 Container(
                   padding: EdgeInsets.all(10),
                   width: 170,

@@ -1,4 +1,4 @@
-package com.example.agoraflutterquickstart;
+package com.gadssolutions.middleman;
 
 import io.flutter.embedding.android.FlutterActivity;
 

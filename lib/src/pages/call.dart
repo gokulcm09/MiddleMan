@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:hardware_buttons/hardware_buttons.dart' as HardwareButtons;
+import 'package:screen/screen.dart';
 
 import '../helpers/db_helper.dart';
 import '../utils/settings.dart';
@@ -39,7 +40,7 @@ class _CallPageState extends State<CallPage> {
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
     _volumeButtonSubscription?.cancel();
-     _text.dispose();
+    _text.dispose();
     super.dispose();
   }
 
@@ -48,6 +49,7 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     // initialize agora sdk
     initialize();
+    Screen.keepOn(true);
     _volumeButtonSubscription =
         HardwareButtons.volumeButtonEvents.listen((event) {
       if (event == HardwareButtons.VolumeButtonEvent.VOLUME_DOWN) {
@@ -142,7 +144,7 @@ class _CallPageState extends State<CallPage> {
     };
   }
 
-    void save(TextEditingController txt) {
+  void save(TextEditingController txt) {
     if (txt.text.isEmpty) {
       setState(() {
         txt.text = "";
@@ -163,7 +165,6 @@ class _CallPageState extends State<CallPage> {
       });
     }
   }
-
 
   /// Helper function to get list of native views
   List<Widget> _getRenderViews() {
@@ -305,7 +306,7 @@ class _CallPageState extends State<CallPage> {
           children: <Widget>[
             _viewRows(),
             _toolbar(),
-             Row(
+            Row(
               children: <Widget>[
                 Expanded(
                   child: TextField(

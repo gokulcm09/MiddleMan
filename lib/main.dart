@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animated_splash/animated_splash.dart';
 
 import './src/pages/index.dart';
 
@@ -16,7 +17,12 @@ class MyApp extends StatelessWidget {
         buttonColor: Colors.blue,
       ),
       theme: ThemeData(primarySwatch: Colors.blue, buttonColor: Colors.blue),
-      home: IndexPage(),
+      home: AnimatedSplash(
+        imagePath: 'assets/splash.png',
+        home: IndexPage(),
+        duration: 3000,
+        type: AnimatedSplashType.StaticDuration,
+      ),
     );
   }
 }
