@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:hardware_buttons/hardware_buttons.dart' as HardwareButtons;
 import 'package:screen/screen.dart';
 
 import '../helpers/db_helper.dart';
@@ -26,7 +24,6 @@ class CallPage extends StatefulWidget {
 
 class _CallPageState extends State<CallPage> {
   static final _users = <int>[];
-  final _infoStrings = <String>[];
   bool muted = false;
   StreamSubscription _volumeButtonSubscription;
   TextEditingController _text = TextEditingController();
@@ -50,27 +47,9 @@ class _CallPageState extends State<CallPage> {
     // initialize agora sdk
     initialize();
     Screen.keepOn(true);
-    _volumeButtonSubscription =
-        HardwareButtons.volumeButtonEvents.listen((event) {
-      if (event == HardwareButtons.VolumeButtonEvent.VOLUME_DOWN) {
-        SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-      } else if (event == HardwareButtons.VolumeButtonEvent.VOLUME_UP) {
-        _onSwitchCamera();
-      }
-    });
   }
 
   Future<void> initialize() async {
-    if (APP_ID.isEmpty) {
-      setState(() {
-        _infoStrings.add(
-          'APP_ID missing, please provide your APP_ID in settings.dart',
-        );
-        _infoStrings.add('Agora Engine is not starting');
-      });
-      return;
-    }
-
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
     await AgoraRtcEngine.enableWebSdkInteroperability(true);
@@ -90,43 +69,28 @@ class _CallPageState extends State<CallPage> {
 
   /// Add agora event handlers
   void _addAgoraEventHandlers() {
-    AgoraRtcEngine.onError = (dynamic code) {
-      setState(() {
-        final info = 'onError: $code';
-        _infoStrings.add(info);
-      });
-    };
+    AgoraRtcEngine.onError = (dynamic code) {};
 
     AgoraRtcEngine.onJoinChannelSuccess = (
       String channel,
       int uid,
       int elapsed,
-    ) {
-      setState(() {
-        final info = 'onJoinChannel: $channel, uid: $uid';
-        _infoStrings.add(info);
-      });
-    };
+    ) {};
 
     AgoraRtcEngine.onLeaveChannel = () {
       setState(() {
-        _infoStrings.add('onLeaveChannel');
         _users.clear();
       });
     };
 
     AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
       setState(() {
-        final info = 'userJoined: $uid';
-        _infoStrings.add(info);
         _users.add(uid);
       });
     };
 
     AgoraRtcEngine.onUserOffline = (int uid, int reason) {
       setState(() {
-        final info = 'userOffline: $uid';
-        _infoStrings.add(info);
         _users.remove(uid);
       });
     };
@@ -136,12 +100,7 @@ class _CallPageState extends State<CallPage> {
       int width,
       int height,
       int elapsed,
-    ) {
-      setState(() {
-        final info = 'firstRemoteVideo: $uid ${width}x $height';
-        _infoStrings.add(info);
-      });
-    };
+    ) {};
   }
 
   void save(TextEditingController txt) {
