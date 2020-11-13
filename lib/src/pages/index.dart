@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'package:agora_flutter_quickstart/src/pages/excel.dart';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
+import 'package:agora_flutter_quickstart/src/pages/Excel.dart';
+import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import './call.dart';
+import './VideoCall.dart';
+import '../utils/MainDrawer.dart';
 
 class IndexPage extends StatefulWidget {
   @override
@@ -32,64 +34,99 @@ class IndexState extends State<IndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Middle Man'),
+        title: Text(
+          'Middle Man',
+          style: GoogleFonts.openSans(),
+        ),
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: 400,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: TextField(
-                      controller: _channelController,
-                      decoration: InputDecoration(
-                        errorText:
-                            _validateError ? 'Channel name is mandatory' : null,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(width: 1),
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 400,
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: TextField(
+                        controller: _channelController,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.blue,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.red,
+                            ),
+                          ),
+                          labelText: 'Channel Name',
+                          errorText: _validateError
+                              ? 'Channel name is mandatory'
+                              : null,
                         ),
-                        hintText: 'Channel name',
+                      ))
+                    ],
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    width: 170,
+                    child: RaisedButton(
+                      onPressed: onJoin,
+                      child: Text(
+                        'Join',
+                        style: GoogleFonts.openSans(),
                       ),
-                    ))
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  width: 170,
-                  child: RaisedButton(
-                    onPressed: onJoin,
-                    child: Text('Join'),
-                    textColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                      textColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
                   ),
-                ),
-                Container(
-                  width: 150,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Excel(),
-                        ),
-                      );
-                    },
-                    child: Text('Notes'),
-                    textColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                )
-              ],
+                  Container(
+                    width: 150,
+                    child: RaisedButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Excel(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Notes',
+                        style: GoogleFonts.openSans(),
+                      ),
+                      textColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
+      drawer: MainDrawer(),
     );
   }
 
@@ -107,7 +144,7 @@ class IndexState extends State<IndexPage> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CallPage(
+          builder: (context) => VideoCall(
             channelName: _channelController.text,
             role: _role,
           ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:animated_splash/animated_splash.dart';
 
-import './src/pages/index.dart';
+import './src/pages/Index.dart';
+import './src/pages/AboutUs.dart';
+import './src/pages/Manual.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,12 +13,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Middle Man',
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
+      theme: ThemeData(
         primarySwatch: Colors.blue,
         buttonColor: Colors.blue,
       ),
-      theme: ThemeData(primarySwatch: Colors.blue, buttonColor: Colors.blue),
+      routes: {
+        AboutUs.routeName: (ctx) => AboutUs(),
+        Manual.routeName: (ctx) => Manual(),
+      },
       home: AnimatedSplash(
         imagePath: 'assets/splash.png',
         home: IndexPage(),

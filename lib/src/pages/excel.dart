@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import '../helpers/db_helper.dart';
+import '../helpers/DBHelper.dart';
 
 class Excel extends StatefulWidget {
   @override
@@ -15,6 +17,7 @@ class _ExcelState extends State<Excel> {
   final storage = FlutterSecureStorage();
   final _urlController = TextEditingController();
   var url;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   List<Map<String, dynamic>> notes;
   void launchlink() async {
@@ -24,15 +27,23 @@ class _ExcelState extends State<Excel> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('URL is empty or Invalid'),
+          title: Text(
+            'URL is empty or Invalid',
+            style: GoogleFonts.openSans(),
+          ),
           content: Text(
-              'The provided URL is empty or invalid. Please change Excel Sheet URL'),
+            'The provided URL is empty or invalid. Please change Excel Sheet URL',
+            style: GoogleFonts.openSans(),
+          ),
           actions: [
             FlatButton(
                 onPressed: () {
                   Navigator.of(ctx).pop();
                 },
-                child: Text('Okay'))
+                child: Text(
+                  'Okay',
+                  style: GoogleFonts.openSans(),
+                ))
           ],
         ),
       );
@@ -59,7 +70,10 @@ class _ExcelState extends State<Excel> {
         barrierDismissible: false,
         context: context,
         builder: (ctx) => AlertDialog(
-              title: Text('Enter the Excel Sheet URL'),
+              title: Text(
+                'Enter the Excel Sheet URL',
+                style: GoogleFonts.openSans(),
+              ),
               content: TextField(
                 keyboardType: TextInputType.url,
                 controller: _urlController,
@@ -80,15 +94,23 @@ class _ExcelState extends State<Excel> {
                         showDialog(
                             context: ctx,
                             builder: (ctx1) => AlertDialog(
-                                  title: Text('URL is empty or Invalid'),
+                                  title: Text(
+                                    'URL is empty or Invalid',
+                                    style: GoogleFonts.openSans(),
+                                  ),
                                   content: Text(
-                                      'The provided URL is empty or invalid.'),
+                                    'The provided URL is empty or invalid.',
+                                    style: GoogleFonts.openSans(),
+                                  ),
                                   actions: [
                                     FlatButton(
                                         onPressed: () {
                                           Navigator.of(ctx1).pop();
                                         },
-                                        child: Text('Okay'))
+                                        child: Text(
+                                          'Okay',
+                                          style: GoogleFonts.openSans(),
+                                        ))
                                   ],
                                 ));
                       } else {
@@ -105,12 +127,18 @@ class _ExcelState extends State<Excel> {
                         });
                       }
                     },
-                    child: Text('Change')),
+                    child: Text(
+                      'Change',
+                      style: GoogleFonts.openSans(),
+                    )),
                 FlatButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
                     },
-                    child: Text('Cancel'))
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.openSans(),
+                    ))
               ],
             ));
   }
@@ -144,8 +172,12 @@ class _ExcelState extends State<Excel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
-        title: Text('Middle Man'),
+        title: Text(
+          'Middle Man',
+          style: GoogleFonts.openSans(),
+        ),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -159,8 +191,10 @@ class _ExcelState extends State<Excel> {
                     width: 300,
                     child: Text(
                       'Notes',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.openSans(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     alignment: Alignment.center,
                   ),
@@ -174,21 +208,77 @@ class _ExcelState extends State<Excel> {
                     height: 300,
                     child: SingleChildScrollView(
                       child: notes.isEmpty
-                          ? Text('No notes yet!')
+                          ? Text(
+                              'No notes yet!',
+                              style: GoogleFonts.openSans(),
+                            )
                           : Column(
                               children: notes
                                   .map<Widget>(
                                     (e) => Column(
                                       children: <Widget>[
                                         ListTile(
+                                          onLongPress: () {
+                                            Clipboard.setData(
+                                                ClipboardData(text: e['info']));
+                                            final snackBar = SnackBar(
+                                              content:
+                                                  Text('Copied to Clipboard'),
+                                            );
+                                            scaffoldKey.currentState
+                                                .showSnackBar(snackBar);
+                                          },
                                           leading: Icon(Icons.message),
-                                          title: Text(e['info']),
-                                          subtitle: Text(e['id']),
+                                          title: Text(
+                                            e['info'],
+                                            style: GoogleFonts.openSans(),
+                                          ),
+                                          subtitle: Text(
+                                            e['id'],
+                                            style: GoogleFonts.openSans(),
+                                          ),
                                           trailing: IconButton(
                                               icon: Icon(
                                                 Icons.delete_forever,
                                               ),
-                                              onPressed: () => del(e['id'])),
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (ctx) =>
+                                                        AlertDialog(
+                                                          title: Text(
+                                                              "Are you sure?",
+                                                              style: GoogleFonts
+                                                                  .openSans()),
+                                                          content: Text(
+                                                              'Are you sure you want to delete this note permanently?',
+                                                              style: GoogleFonts
+                                                                  .openSans()),
+                                                          actions: [
+                                                            FlatButton(
+                                                              onPressed: () {
+                                                                del(e['id']);
+                                                                Navigator.of(
+                                                                        ctx)
+                                                                    .pop();
+                                                              },
+                                                              child: Text('Yes',
+                                                                  style: GoogleFonts
+                                                                      .openSans()),
+                                                            ),
+                                                            FlatButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          ctx)
+                                                                      .pop();
+                                                                },
+                                                                child: Text(
+                                                                    'No',
+                                                                    style: GoogleFonts
+                                                                        .openSans()))
+                                                          ],
+                                                        ));
+                                              }),
                                         ),
                                         Divider(
                                           color: Colors.white,
@@ -210,7 +300,10 @@ class _ExcelState extends State<Excel> {
                         child: Container(
                           child: RaisedButton(
                             onPressed: url == null ? null : launchlink,
-                            child: Text('Open Excel'),
+                            child: Text(
+                              'Open Excel',
+                              style: GoogleFonts.openSans(),
+                            ),
                             textColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
@@ -219,12 +312,15 @@ class _ExcelState extends State<Excel> {
                       ),
                       Container(
                         margin: EdgeInsets.all(20),
-                        width: 150,
+                        width: 175,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Container(
                           child: RaisedButton(
                             onPressed: changeUrl,
-                            child: Text('Change Excel Url'),
+                            child: Text(
+                              'Change Excel Url',
+                              style: GoogleFonts.openSans(),
+                            ),
                             textColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
